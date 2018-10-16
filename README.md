@@ -9,7 +9,7 @@ your mail server and convert any messages found into tickets.
 Add this to your Gemfile:
 
 ```
-gem 'helpy_imap', git: 'https://github.com/scott/helpy_imap', branch: 'master'
+gem 'helpy_imap', git: 'https://github.com/helpyio/helpy_imap', branch: 'master'
 ```
 
 and then run:
