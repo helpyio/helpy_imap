@@ -170,7 +170,11 @@ class ImapProcessor
   end
 
   def raw_body_from_mail
-    mail_is_mail ? @email.text_part.body.decoded : @email.raw_body
+    if @email.multipart?
+      mail_is_mail ? @email.text_part.body.decoded : @email.raw_body
+    else
+      mail_is_mail ? @email.body.decoded : @email.raw_body
+    end
   end
 
   def get_email_from_mail
