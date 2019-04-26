@@ -20,10 +20,8 @@ class ImapProcessor
     end
     sitename = AppSettings["settings.site_name"]
     message =  get_content_from_mail
-
     raw = raw_body_from_mail.nil? ? "" : raw_body_from_mail
-
-    cc = @email.cc ? @email.cc.map { |e| e[:full] }.join(", ") : nil
+    cc = @email.cc.join(",")
 
     subject = @email.subject
     attachments = @email.attachments
@@ -114,6 +112,8 @@ class ImapProcessor
 
   def encode_entity(entity)
     return nil if entity.nil?
+    return entity unless entity.respond_to?('encoding')
+    
     case entity.encoding.name
     when "ASCII-8BIT"
       entity.force_encoding("utf-8")
@@ -157,7 +157,7 @@ class ImapProcessor
 
 
     @user.email = get_email_from_mail
-    @user.name = get_name_from_mail.blank? ? get_token_from_mail.gsub(/[^a-zA-Z]/, '') : get_name_from_mail
+    @user.name = get_name_from_mail.blank? ? get_email_from_mail.gsub(/[^a-zA-Z]/, '') : get_name_from_mail
     @user.password = User.create_password
     if @user.save
       UserMailer.new_user(@user.id, @token).deliver_later
@@ -167,13 +167,13 @@ class ImapProcessor
 
   def get_name_from_mail
     mail_is_mail ? @email[:from].addrs.first.display_name : @email.from[:name]
-  end 
+  end
 
   def raw_body_from_mail
-  	if mail_is_mail
-  		@email.multipart? ? @email.text_part.body.decoded : @email.body.decoded
-  	else
-  		@email.raw_body
+    if mail_is_mail
+      @email.multipart? ? @email.text_part.body.decoded : @email.body.decoded
+    else
+      @email.raw_body
     end
   end
 
