@@ -21,7 +21,8 @@ class ImapProcessor
     sitename = AppSettings["settings.site_name"]
     message =  get_content_from_mail
     raw = raw_body_from_mail.nil? ? "" : raw_body_from_mail
-    cc = @email.cc.join(",")
+
+    cc = @email.cc&.join ','
 
     subject = @email.subject
     attachments = @email.attachments
@@ -170,7 +171,11 @@ class ImapProcessor
   end
 
   def raw_body_from_mail
-    mail_is_mail ? @email.text_part.body.decoded : @email.raw_body
+    if mail_is_mail
+      @email.multipart? ? @email.text_part.body.decoded : @email.body.decoded
+    else
+      @email.raw_body
+    end
   end
 
   def get_email_from_mail
