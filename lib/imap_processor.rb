@@ -117,7 +117,11 @@ class ImapProcessor
     
     case entity.encoding.name
     when "ASCII-8BIT"
-      entity.force_encoding("utf-8")
+      if entity.force_encoding("utf-8").valid_encoding?
+        entity.force_encoding("utf-8")
+      elsif entity.force_encoding("iso-8859-1").valid_encoding?
+        entity.force_encoding("iso-8859-1").encode('utf-8', invalid: :replace, replace: '?')
+      end
     when "UTF-8"
       entity.encode('utf-8', invalid: :replace, replace: '?')
     end
