@@ -21,9 +21,8 @@ class ImapProcessor
     sitename = AppSettings["settings.site_name"]
     message =  get_content_from_mail
     raw = raw_body_from_mail.nil? ? "" : raw_body_from_mail
-
     cc = @email.cc&.join ','
-
+    to = @email.to
     subject = @email.subject
     attachments = @email.attachments
 
@@ -39,7 +38,8 @@ class ImapProcessor
         :raw_email => encode_entity(raw),
         :user_id => @user.id,
         :cc => cc,
-        :kind => "reply"
+        :kind => "reply",
+        email_to_address: to
       )
 
       # Push array of attachments and send to Cloudinary
@@ -68,7 +68,8 @@ class ImapProcessor
         :raw_email => encode_entity(raw),
         :user_id => @user.id,
         :cc => cc,
-        kind: 'first'
+        kind: 'first',
+        email_to_address: to
       )
 
       # Push array of attachments and send to Cloudinary
@@ -97,7 +98,8 @@ class ImapProcessor
         :raw_email => encode_entity(raw),
         :user_id => @user.id,
         :cc => cc,
-        :kind => "first"
+        :kind => "first",
+        email_to_address: to
       )
 
       # Push array of attachments and send to Cloudinary
