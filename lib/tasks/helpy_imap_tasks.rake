@@ -28,7 +28,7 @@ namespace :helpy do
       end
       Mailman.config.pop3 = {
         server: AppSettings['email.pop3_server'],
-        ssl: AppSettings['email.pop3_security'] == 'ssl' ? true : false,
+        ssl: AppSettings['email.pop3_security'] == 'ssl' ? {ssl_version: :TLSv1_2} : false,
         starttls: AppSettings['email.pop3_security'] == 'starttls' ? true : false,
         username: AppSettings['email.pop3_username'],
         password: AppSettings['email.pop3_password'],
@@ -44,7 +44,7 @@ namespace :helpy do
       end
       Mailman.config.imap = {
         server: AppSettings['email.imap_server'],
-        ssl: AppSettings['email.imap_security'] == 'ssl' ? true : false,
+        ssl: AppSettings['email.imap_security'] == 'ssl' ? {ssl_version: :TLSv1_2} : false,
         starttls: AppSettings['email.imap_security'] == 'starttls' ? true : false,
         username: AppSettings['email.imap_username'],
         password: AppSettings['email.imap_password'],
