@@ -5,6 +5,8 @@ namespace :helpy do
     interval = ENV['mail_interval'].to_i || 60
     require 'mailman'
     Mailman.config.poll_interval = interval
+    Mailman.config.ignore_stdin = true # Ignores STDIN if running CRON job
+
 
     configure_mailman
 
