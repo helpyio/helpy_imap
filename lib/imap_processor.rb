@@ -29,13 +29,14 @@ class ImapProcessor
     end
     
     # get unread messages
-    messages = Mail.find(keys: ['NOT', 'SEEN'])
+    messages = Mail.find(keys: ['NOT', 'SEEN'], read_only: true)
     puts "found #{messages.count} messages"
     messages.each do |message|
-      puts "processing email"
+      puts "processing email: #{message.subject}"
       # FetchMailJob.perform_later(message)
       ImapProcessor.new(message).process
     end
+
   end
 
   def initialize(email)
@@ -62,8 +63,9 @@ class ImapProcessor
     email_name = @email[:from].display_names.first.blank? ? @email.from[:token].gsub(/[^a-zA-Z]/, '') : @email[:from].display_names.first
     # message = @email.body.nil? ? "" : encode_entity(@email.body)
     # raw = @email.raw_body.nil? ? "" : encode_entity(@email.raw_body)
-    message = @email.text_part.decoded
-    raw = @email.text_part.decoded
+    binding.pry
+    message =  @email.text_part.present? ? @email.text_part.decoded : encode_entity(@email.body.raw_source)
+    raw = message
     to = @email.to.first
     cc = @email.cc ? @email.cc.map { |e| e[:full] }.join(", ") : nil
     token = email_address.split('@')[0]
@@ -79,6 +81,8 @@ class ImapProcessor
     else # this is a new direct message
       ImapProcessor.create_new_ticket_from_email(@email, email_address, email_name, subject, raw, message, token, to, cc, number_of_attachments, @spam_score, spam_report)
     end
+  rescue => e
+      puts e
   end
 
   # Creates a new ticket from an email
