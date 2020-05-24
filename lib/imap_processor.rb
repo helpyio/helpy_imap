@@ -12,6 +12,8 @@ class ImapProcessor
             password:   AppSettings['email.pop3_password'],
             enable_ssl: AppSettings['email.pop3_security'] == 'ssl' ? true : false
           )
+          messages = Mail.find(keys: ['NOT', 'SEEN'], read_only: true)
+
         else
           retriever_method(
             :imap, 
@@ -21,6 +23,9 @@ class ImapProcessor
             :password   => AppSettings['email.imap_password'],
             :enable_ssl => true
           )
+
+          messages = Mail.find(keys: ['NOT', 'SEEN'], read_only: true)
+
         end
       end     
 
@@ -28,8 +33,7 @@ class ImapProcessor
       logger.error e
     end
     
-    # get unread messages
-    messages = Mail.find(keys: ['NOT', 'SEEN'], read_only: true)
+    # process unread messages
     puts "found #{messages.count} messages"
     messages.each do |message|
       puts "processing email: #{message.subject}"
@@ -63,8 +67,7 @@ class ImapProcessor
     email_name = @email[:from].display_names.first.blank? ? @email.from[:token].gsub(/[^a-zA-Z]/, '') : @email[:from].display_names.first
     # message = @email.body.nil? ? "" : encode_entity(@email.body)
     # raw = @email.raw_body.nil? ? "" : encode_entity(@email.raw_body)
-    binding.pry
-    message =  @email.text_part.present? ? @email.text_part.decoded : encode_entity(@email.body.raw_source)
+    message =  @email.text_part.present? ? @email.text_part.decoded : ActionView::Base.new.strip_tags(@email.body.raw_source)
     raw = message
     to = @email.to.first
     cc = @email.cc ? @email.cc.map { |e| e[:full] }.join(", ") : nil
