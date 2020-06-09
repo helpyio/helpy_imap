@@ -1,41 +1,44 @@
 class ImapProcessor
 
   def self.fetch
+    return unless ['pop3','imap'].include?(AppSettings['email.mail_service'])
+
     begin
       Mail.defaults do
         if AppSettings["email.mail_service"] == 'pop3'
           retriever_method(
             :pop3, 
             address:    AppSettings['email.pop3_server'],
-            port:       AppSettings['email.pop3_port'],
+            port:       AppSettings['email.pop3_port'] || 995,
             user_name:  AppSettings['email.pop3_username'],
             password:   AppSettings['email.pop3_password'],
             enable_ssl: AppSettings['email.pop3_security'] == 'ssl' ? true : false
           )
-          messages = Mail.find(keys: ['NOT', 'SEEN'], read_only: true)
 
-        else
+        elsif AppSettings["email.mail_service"] == 'imap'
           retriever_method(
             :imap, 
             :address    => AppSettings['email.imap_server'],
-            :port       => AppSettings['email.imap_port'],
+            :port       => AppSettings['email.imap_port'] || 993,
             :user_name  => AppSettings['email.imap_username'],
             :password   => AppSettings['email.imap_password'],
             :enable_ssl => true
           )
-
-          messages = Mail.find(keys: ['NOT', 'SEEN'], read_only: true)
-
         end
       end     
 
     rescue => e
       logger.error e
     end
-    
+
+    # Fetch mail
+    @messages = Mail.find(keys: ['NOT', 'SEEN'], read_only: false, count: 100) if AppSettings["email.mail_service"] == 'imap'
+    @messages = Mail.all if AppSettings["email.mail_service"] == 'pop3'
+
     # process unread messages
-    puts "found #{messages.count} messages"
-    messages.each do |message|
+    puts "found #{@messages.count} messages"
+    
+    @messages.each do |message|
       puts "processing email: #{message.subject}"
       # FetchMailJob.perform_later(message)
       ImapProcessor.new(message).process
