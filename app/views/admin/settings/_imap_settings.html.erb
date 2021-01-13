@@ -1,5 +1,5 @@
 <div class="settings-section email" data-hook="admin_settings_email">
-    <%= f.select 'email.mail_service', options_for_select([['Mailgun', 'mailgun'],['Sendgrid', 'sendgrid'],['Mandrill','mandrill'],['Postmark','postmark'],['Sparkpost','sparkpost'],['IMAP','imap'],['POP3','pop3']], AppSettings['email.mail_service']), label: "Inbound Mail Service Provider" %>
+    <%= f.select 'email.mail_service', options_for_select([['Mailgun', 'mailgun'],['Sendgrid', 'sendgrid'],['Mandrill','mandrill'],['Postmark','postmark'],['Sparkpost','sparkpost'],['Amazon SES','amazon_ses'],['IMAP','imap'],['POP3','pop3']], AppSettings['email.mail_service']), label: "Inbound Mail Service Provider" %>
     <div class="pop3-settings <%= "hidden" if "#{AppSettings['email.mail_service']}" != 'pop3' %>">
         <%= f.text_field 'email.pop3_server', value: AppSettings['email.pop3_server'], label: "POP3 Host" %>
         <%= f.text_field 'email.pop3_username', value: AppSettings['email.pop3_username'], label: "POP3 Login" %>
